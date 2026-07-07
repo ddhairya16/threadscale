@@ -23,6 +23,7 @@ export async function POST(request: Request) {
         // Pass referral code into user metadata so the signup trigger
         // (handle_new_user) can link the referral automatically.
         data: referralCode ? { referral_code: referralCode } : undefined,
+        emailRedirectTo: `${request.nextUrl.origin}/api/v1/auth/callback`,
       },
     })
 

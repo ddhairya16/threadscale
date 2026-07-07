@@ -105,18 +105,18 @@ function VerifyPageContent() {
         {/* Heading */}
         <motion.div variants={fadeUp} className="mb-6 text-center">
           <h2 className="text-2xl font-bold tracking-tight text-foreground">
-            {verified ? 'Verified!' : 'Check your email'}
+            Check your email
           </h2>
           <p className="mt-1.5 text-sm text-muted-foreground">
-            {verified ? (
-              'Redirecting you now…'
-            ) : (
-              <>
-                We sent a 6-digit code to{' '}
-                <span className="font-medium text-foreground">{maskEmail(email)}</span>
-              </>
-            )}
+            We sent a sign-in link and a 6-digit code to <br/>
+            <span className="font-medium text-foreground">{email}</span>
           </p>
+        </motion.div>
+
+        {/* Info Box */}
+        <motion.div variants={fadeUp} className="mb-8 p-4 rounded-xl bg-primary/10 border border-primary/20 text-sm text-primary text-center">
+          <p><strong>Click the link in your email to sign in instantly.</strong></p>
+          <p className="mt-1 opacity-80 text-xs">If you received a 6-digit code instead, you can enter it below.</p>
         </motion.div>
 
         {/* OTP Input or success state */}
