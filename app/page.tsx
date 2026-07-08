@@ -3,6 +3,7 @@ import { ArrowRight, CheckCircle2, TrendingUp, Users } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { HeroCanvas } from '@/components/landing/hero-canvas'
+import { ContactForm } from '@/components/landing/contact-form'
 
 export default function LandingPage() {
   return (
@@ -105,6 +106,40 @@ export default function LandingPage() {
               </div>
             </div>
           </div>
+        </section>
+
+        {/* Contact Section */}
+        <section id="contact" className="py-24 relative">
+          <div className="container mx-auto max-w-5xl px-4 relative z-10">
+            <div className="grid md:grid-cols-2 gap-12 items-center">
+              <div>
+                <h2 className="text-4xl font-bold tracking-tight mb-6">Ready to scale your community?</h2>
+                <p className="text-lg text-muted-foreground mb-8">
+                  Get in touch with our team to discuss your goals. We'll design a custom growth strategy leveraging our network of verified contributors.
+                </p>
+                <ul className="space-y-4">
+                  {[
+                    "Dedicated account manager",
+                    "Custom task templates",
+                    "Quality assured results",
+                    "Detailed performance reports"
+                  ].map((feature, i) => (
+                    <li key={i} className="flex items-center gap-3">
+                      <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/20">
+                        <CheckCircle2 className="h-4 w-4 text-primary" />
+                      </div>
+                      <span className="font-medium">{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              
+              <div>
+                <ContactForm />
+              </div>
+            </div>
+          </div>
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] bg-primary/10 blur-[120px] rounded-full pointer-events-none" />
         </section>
       </main>
 

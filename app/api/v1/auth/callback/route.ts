@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createAdminClient } from '@/lib/supabase/server'
 
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url)
@@ -16,12 +16,28 @@ export async function GET(request: Request) {
       if (user) {
         const { data: profile } = await supabase
           .from('profiles')
-          .select('role')
+          .select('role, status, referred_by_id')
           .eq('id', user.id)
           .single()
           
-        if (profile?.role === 'admin') {
-          return NextResponse.redirect(`${requestUrl.origin}/admin`)
+        if (profile) {
+          // Auto-approve if they were referred
+          let currentStatus = profile.status
+          if (currentStatus === 'pending' && profile.referred_by_id) {
+            const adminClient = await createAdminClient()
+            await adminClient
+              .from('profiles')
+              .update({ status: 'approved' })
+              .eq('id', user.id)
+            currentStatus = 'approved'
+          }
+
+          if (profile.role === 'admin') {
+            return NextResponse.redirect(`${requestUrl.origin}/admin`)
+          }
+          if (currentStatus === 'pending') {
+            return NextResponse.redirect(`${requestUrl.origin}/dashboard/waiting`)
+          }
         }
       }
       return NextResponse.redirect(`${requestUrl.origin}${next}`)

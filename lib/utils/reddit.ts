@@ -47,6 +47,52 @@ export function extractSubreddit(url: string): string | null {
   return match ? match[1] : null
 }
 
+export interface RedditMetadata {
+  type: RedditUrlType
+  subreddit: string | null
+  postId: string | null
+  commentId: string | null
+  permalink: string
+}
+
+/**
+ * Extracts all relevant metadata from a Reddit URL.
+ */
+export function extractRedditMetadata(url: string): RedditMetadata {
+  const normalized = normalizeRedditUrl(url)
+  const type = classifyRedditUrl(normalized)
+  const subreddit = extractSubreddit(normalized)
+  
+  let postId: string | null = null
+  let commentId: string | null = null
+  
+  // Extract Post ID
+  const postMatch = normalized.match(/\/comments\/([a-z0-9]+)/i)
+  if (postMatch) {
+    postId = postMatch[1]
+  }
+  
+  // Extract Comment ID (if it's a comment)
+  if (type === 'comment') {
+    // Usually the last segment in the path is the comment ID if it follows the slug
+    // e.g. /comments/1d4abc/my_post_slug/k2m3nop
+    const segments = normalized.split('/')
+    const possibleCommentId = segments[segments.length - 1]
+    // If it's a valid alphanumeric comment id
+    if (/^[a-z0-9]+$/i.test(possibleCommentId) && possibleCommentId !== postId) {
+      commentId = possibleCommentId
+    }
+  }
+
+  return {
+    type,
+    subreddit,
+    postId,
+    commentId,
+    permalink: normalized
+  }
+}
+
 /** Normalizes a Reddit URL (removes query params, trailing slashes) */
 export function normalizeRedditUrl(url: string): string {
   try {
@@ -58,3 +104,4 @@ export function normalizeRedditUrl(url: string): string {
     return url
   }
 }
+

@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, type FormEvent } from 'react'
-import { useRouter } from 'next/navigation'
+import { Suspense, useState, type FormEvent } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { Mail, ArrowRight, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
@@ -20,8 +20,10 @@ const fadeUp = {
   visible: { opacity: 1, y: 0 },
 }
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const ref = searchParams.get('ref')
   const [email, setEmail]     = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -31,8 +33,8 @@ export default function LoginPage() {
 
     setLoading(true)
     try {
-      await authApi.sendOtp({ email: email.trim().toLowerCase() })
-      toast.success('Code sent! Check your email.')
+      await authApi.sendOtp({ email: email.trim().toLowerCase(), referral_code: ref || undefined })
+      toast.success('Magic link sent! Check your email.')
       router.push(`/verify?email=${encodeURIComponent(email.trim().toLowerCase())}`)
     } catch (err) {
       const message =
@@ -73,7 +75,7 @@ export default function LoginPage() {
             Welcome back
           </h2>
           <p className="mt-1.5 text-sm text-muted-foreground">
-            Enter your email to receive a one-time sign-in code
+            Enter your email to receive a magic link
           </p>
         </motion.div>
 
@@ -108,11 +110,11 @@ export default function LoginPage() {
             {loading ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
-                Sending code…
+                Sending link…
               </>
             ) : (
               <>
-                Send code
+                Send magic link
                 <ArrowRight className="h-4 w-4" />
               </>
             )}
@@ -136,5 +138,13 @@ export default function LoginPage() {
         <span className="underline underline-offset-2 cursor-pointer hover:text-muted-foreground">Privacy</span>
       </motion.p>
     </motion.div>
+  )
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="flex h-screen items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>}>
+      <LoginForm />
+    </Suspense>
   )
 }

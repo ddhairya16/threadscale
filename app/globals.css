@@ -107,32 +107,32 @@
 
 /* ── Dark Mode ───────────────────────────────────────────────── */
 .dark {
-  --background:           oklch(0.12 0.005 265);    /* Deep dark with a hint of indigo */
-  --foreground:           oklch(0.97 0 0);
-  --card:                 oklch(0.16 0.008 265);
-  --card-foreground:      oklch(0.97 0 0);
-  --popover:              oklch(0.16 0.008 265);
-  --popover-foreground:   oklch(0.97 0 0);
+  --background:           oklch(0.16 0 0);          /* #1e1e1e equivalent (VS Code background) */
+  --foreground:           oklch(0.98 0 0);          /* Crisp white text */
+  --card:                 oklch(0.21 0 0);          /* #2d2d2d distinct card background */
+  --card-foreground:      oklch(0.98 0 0);
+  --popover:              oklch(0.21 0 0);
+  --popover-foreground:   oklch(0.98 0 0);
 
   /* Indigo primary — vibrant in dark mode */
   --primary:              oklch(0.65 0.22 265);
-  --primary-foreground:   oklch(0.10 0 0);
+  --primary-foreground:   oklch(0.98 0 0);
 
-  --secondary:            oklch(0.22 0.008 265);
-  --secondary-foreground: oklch(0.97 0 0);
-  --muted:                oklch(0.22 0.008 265);
-  --muted-foreground:     oklch(0.65 0 0);
-  --accent:               oklch(0.22 0.015 265);
-  --accent-foreground:    oklch(0.97 0 0);
+  --secondary:            oklch(0.26 0 0);          /* #3d3d3d */
+  --secondary-foreground: oklch(0.98 0 0);
+  --muted:                oklch(0.26 0 0);
+  --muted-foreground:     oklch(0.70 0 0);          /* High contrast gray for muted text */
+  --accent:               oklch(0.26 0 0);
+  --accent-foreground:    oklch(0.98 0 0);
   --destructive:          oklch(0.65 0.22 27);
-  --border:               oklch(1 0 0 / 8%);
-  --input:                oklch(1 0 0 / 10%);
+  --border:               oklch(0.35 0 0);          /* Solid, visible border (#444444) */
+  --input:                oklch(0.35 0 0);
   --ring:                 oklch(0.65 0.22 265);
 
-  --sidebar-background:   oklch(0.10 0.005 265);
-  --sidebar-foreground:   oklch(0.92 0 0);
-  --sidebar-accent:       oklch(0.18 0.01 265);
-  --sidebar-border:       oklch(1 0 0 / 6%);
+  --sidebar-background:   oklch(0.14 0 0);          /* #181818 Slightly darker than main background */
+  --sidebar-foreground:   oklch(0.95 0 0);
+  --sidebar-accent:       oklch(0.21 0 0);
+  --sidebar-border:       oklch(0.35 0 0);          /* Visible sidebar separator */
 }
 
 /* ── Base Styles ─────────────────────────────────────────────── */

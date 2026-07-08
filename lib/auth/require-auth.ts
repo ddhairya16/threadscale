@@ -20,6 +20,10 @@ export async function requireAuth(): Promise<Session> {
     throw new HttpError(403, 'Your account has been suspended. Please contact support.')
   }
 
+  if (session.profile.status === 'pending') {
+    throw new HttpError(403, 'Your account is pending approval.')
+  }
+
   if (session.profile.status === 'blacklisted') {
     throw new HttpError(403, 'Your account has been permanently disabled.')
   }

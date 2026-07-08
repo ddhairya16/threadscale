@@ -721,6 +721,37 @@ export type Database = {
         Update: never  // Audit logs are append-only
         Relationships: []
       }
+      business_inquiries: {
+        Row: {
+          id: string
+          company_name: string
+          contact_name: string
+          email: string
+          website: string | null
+          project_description: string
+          status: Database['public']['Enums']['inquiry_status']
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          company_name: string
+          contact_name: string
+          email: string
+          website?: string | null
+          project_description: string
+          status?: Database['public']['Enums']['inquiry_status']
+          created_at?: string
+        }
+        Update: {
+          company_name?: string
+          contact_name?: string
+          email?: string
+          website?: string | null
+          project_description?: string
+          status?: Database['public']['Enums']['inquiry_status']
+        }
+        Relationships: []
+      }
     }
     Views: Record<string, never>
     Functions: {
@@ -735,7 +766,7 @@ export type Database = {
     }
     Enums: {
       user_role: 'contributor' | 'admin' | 'client'
-      user_status: 'active' | 'suspended' | 'blacklisted'
+      user_status: 'pending' | 'approved' | 'rejected' | 'suspended'
       reddit_verification: 'unverified' | 'pending' | 'verified' | 'rejected'
       task_type: 'comment' | 'post' | 'moderation'
       task_status: 'draft' | 'open' | 'fully_assigned' | 'completed' | 'cancelled'
@@ -751,6 +782,7 @@ export type Database = {
       payment_type: 'task' | 'referral_bonus'
       payment_status: 'pending' | 'approved' | 'paid'
       referral_status: 'pending' | 'awarded' | 'revoked'
+      inquiry_status: 'new' | 'contacted' | 'qualified' | 'closed'
     }
     CompositeTypes: Record<string, never>
   }
