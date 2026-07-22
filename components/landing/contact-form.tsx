@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { createClient } from '@/lib/supabase/client'
 import { toast } from 'sonner'
 
 export function ContactForm() {
@@ -25,10 +24,15 @@ export function ContactForm() {
     setLoading(true)
     
     try {
-      const supabase = createClient()
-      const { error } = await supabase.from('business_inquiries').insert([formData])
+      const response = await fetch('/api/v1/inquiries', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      })
       
-      if (error) throw error
+      if (!response.ok) {
+        throw new Error('Failed to send')
+      }
       
       toast.success("Inquiry sent successfully! We'll be in touch soon.")
       setFormData({ company_name: '', contact_name: '', email: '', website: '', project_description: '' })
