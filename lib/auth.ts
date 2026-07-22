@@ -6,8 +6,8 @@ import nodemailer from 'nodemailer'
 /**
  * Better Auth instance.
  * Uses Supabase Postgres as the database via a direct connection.
- * Auth tables (user, session, account, verification) are created
- * alongside the existing profiles, tasks, etc. tables.
+ * Default table names: user, session, account, verification
+ * Better Auth quotes the "user" table name internally so no conflict.
  */
 export const auth = betterAuth({
   database: new Pool({
@@ -15,30 +15,24 @@ export const auth = betterAuth({
     ssl: { rejectUnauthorized: false },
   }),
 
-  // Better Auth creates its own "user" table. We keep our "profiles" table
-  // for app-specific fields (role, status, discord_id, etc.) and cross-reference
-  // by email in get-session.ts.
   emailAndPassword: {
-    enabled: false, // We use magic links only
+    enabled: false, // Magic links only
   },
 
   plugins: [
     magicLink({
-      sendMagicLink: async ({ email, url, token }) => {
+      sendMagicLink: async ({ email, url }) => {
         const smtpEmail = process.env.SMTP_EMAIL
         const smtpPassword = process.env.SMTP_PASSWORD
 
         if (!smtpEmail || !smtpPassword) {
-          console.error('[Better Auth] SMTP_EMAIL or SMTP_PASSWORD not set — cannot send magic link email')
+          console.error('[Better Auth] SMTP_EMAIL or SMTP_PASSWORD not set')
           return
         }
 
         const transporter = nodemailer.createTransport({
           service: 'gmail',
-          auth: {
-            user: smtpEmail,
-            pass: smtpPassword,
-          },
+          auth: { user: smtpEmail, pass: smtpPassword },
         })
 
         await transporter.sendMail({

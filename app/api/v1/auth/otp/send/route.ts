@@ -1,5 +1,3 @@
-import { auth } from '@/lib/auth'
-import { headers } from 'next/headers'
 import { sendOtpSchema } from '@/lib/validators/auth.schemas'
 import { success, error, handleRouteError } from '@/lib/utils/api-response'
 import { logAudit, getRequestMeta } from '@/lib/audit/log'
@@ -11,18 +9,23 @@ export async function POST(request: Request) {
 
     const origin = new URL(request.url).origin
 
-    // Send magic link via Better Auth's magic link plugin.
-    // The callbackURL is where the user lands after clicking the email link.
-    const result = await auth.api.signInMagicLink({
-      body: {
+    // Forward to Better Auth's built-in magic link endpoint.
+    // The catch-all handler at /api/auth/[...all] processes this.
+    const baResponse = await fetch(`${origin}/api/auth/sign-in/magic-link`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        cookie: request.headers.get('cookie') || '',
+      },
+      body: JSON.stringify({
         email,
         callbackURL: `${origin}/api/auth/magic-link/verify-redirect`,
-      },
-      headers: await headers(),
+      }),
     })
 
-    if (result && 'error' in result) {
-      return error((result as any).error?.message || 'Failed to send magic link', 400)
+    if (!baResponse.ok) {
+      const errData = await baResponse.json().catch(() => ({}))
+      return error(errData.message || 'Failed to send magic link', 400)
     }
 
     await logAudit({

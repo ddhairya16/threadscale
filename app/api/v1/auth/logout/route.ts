@@ -1,5 +1,3 @@
-import { auth } from '@/lib/auth'
-import { headers } from 'next/headers'
 import { success, handleRouteError } from '@/lib/utils/api-response'
 import { getSession } from '@/lib/auth/get-session'
 import { logAudit, getRequestMeta } from '@/lib/audit/log'
@@ -8,9 +6,15 @@ export async function POST(request: Request) {
   try {
     const session = await getSession()
 
-    // Sign out via Better Auth
-    await auth.api.signOut({
-      headers: await headers(),
+    const origin = new URL(request.url).origin
+
+    // Forward sign-out to Better Auth's built-in endpoint
+    await fetch(`${origin}/api/auth/sign-out`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        cookie: request.headers.get('cookie') || '',
+      },
     })
 
     if (session) {
