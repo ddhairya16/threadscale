@@ -1,4 +1,5 @@
-import { createClient } from '@/lib/supabase/server'
+import { auth } from '@/lib/auth'
+import { headers } from 'next/headers'
 import { success, handleRouteError } from '@/lib/utils/api-response'
 import { getSession } from '@/lib/auth/get-session'
 import { logAudit, getRequestMeta } from '@/lib/audit/log'
@@ -6,9 +7,11 @@ import { logAudit, getRequestMeta } from '@/lib/audit/log'
 export async function POST(request: Request) {
   try {
     const session = await getSession()
-    const supabase = await createClient()
 
-    await supabase.auth.signOut()
+    // Sign out via Better Auth
+    await auth.api.signOut({
+      headers: await headers(),
+    })
 
     if (session) {
       await logAudit({
