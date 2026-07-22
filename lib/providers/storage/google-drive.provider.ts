@@ -59,7 +59,7 @@ export class GoogleDriveStorageProvider implements StorageProvider {
   async ensureFolderPath(path: string): Promise<string> {
     if (!this.drive || !this.rootFolderId) {
       console.log(`[Storage DEV] Would ensure folder path: ${path}`)
-      return `dev-folder-${path.replace(/\\//g, '-')}`
+      return `dev-folder-${path.replace(/\//g, '-')}`
     }
 
     const folders = path.split('/').filter(Boolean)

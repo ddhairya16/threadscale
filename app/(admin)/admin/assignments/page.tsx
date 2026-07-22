@@ -29,7 +29,7 @@ export default async function AssignmentsPage() {
       .from('profiles')
       .select('id, email, full_name, reddit_accounts(id, username, is_active)')
       .eq('role', 'contributor')
-      .eq('status', 'active')
+      .eq('status', 'active' as any)
       .order('email'),
   ])
 
