@@ -37,12 +37,13 @@ export default async function TaskDetailsPage({ params }: { params: Promise<{ id
   }
 
   const t = assignment.tasks
-  const isSubmitDisabled = !['assigned', 'in_progress'].includes(assignment.status)
+  const isSubmitDisabled = !['assigned', 'in_progress', 'rejected'].includes(assignment.status)
   
-  const showInsights = ['submitted', 'under_review', 'approved', 'paid'].includes(assignment.status)
+  const showInsights = ['submitted', 'under_review', 'approved'].includes(assignment.status)
   const submission = assignment.submissions?.[0]
-  const existingInsights = submission?.insights?.[0]?.text_content 
-    ? JSON.parse(submission.insights[0].text_content) 
+  const insightsArray = submission?.insights as any
+  const existingInsights = insightsArray?.[0]?.text_content 
+    ? JSON.parse(insightsArray[0].text_content) 
     : null
 
   const getStatusColor = (s: string) => {
@@ -55,8 +56,8 @@ export default async function TaskDetailsPage({ params }: { params: Promise<{ id
         return 'bg-orange-500/10 text-orange-500 hover:bg-orange-500/20'
       case 'approved':
         return 'bg-green-500/10 text-green-500 hover:bg-green-500/20'
-      case 'paid':
-        return 'bg-amber-500/10 text-amber-500 hover:bg-amber-500/20'
+      case 'rejected':
+        return 'bg-red-500/10 text-red-500 hover:bg-red-500/20'
       default:
         return 'bg-muted text-muted-foreground'
     }

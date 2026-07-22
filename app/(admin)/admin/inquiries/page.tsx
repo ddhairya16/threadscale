@@ -2,8 +2,7 @@ import { createAdminClient } from '@/lib/supabase/server'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { formatDistanceToNow } from 'date-fns'
-
+// Custom date formatter
 export default async function InquiriesPage() {
   const supabase = await createAdminClient()
   
@@ -80,7 +79,7 @@ export default async function InquiriesPage() {
                     </Badge>
                   </TableCell>
                   <TableCell className="text-muted-foreground text-sm">
-                    {formatDistanceToNow(new Date(inquiry.created_at), { addSuffix: true })}
+                    {new Date(inquiry.created_at).toLocaleDateString()}
                   </TableCell>
                 </TableRow>
               ))}

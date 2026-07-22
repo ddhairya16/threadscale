@@ -83,7 +83,7 @@ export function ContributorsClient({ contributors }: { contributors: Contributor
                   </td>
                   <td className="px-5 py-3">
                     <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium capitalize ${
-                      c.status === 'active' ? 'bg-emerald-500/10 text-emerald-500' :
+                      c.status === 'approved' ? 'bg-emerald-500/10 text-emerald-500' :
                       c.status === 'suspended' ? 'bg-red-500/10 text-red-500' :
                       'bg-muted text-muted-foreground'
                     }`}>

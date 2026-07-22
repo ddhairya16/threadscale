@@ -3,7 +3,7 @@ import { getSession } from '@/lib/auth/get-session'
 import { processScreenshot } from '@/lib/utils/image'
 import { GoogleDriveStorageProvider } from '@/lib/providers/storage/google-drive.provider'
 import { extractRedditMetadata } from '@/lib/utils/reddit'
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createAdminClient } from '@/lib/supabase/server'
 
 export async function POST(req: NextRequest) {
   const session = await getSession()
@@ -28,6 +28,7 @@ export async function POST(req: NextRequest) {
     // Setup providers
     const storage = new GoogleDriveStorageProvider()
     const supabase = await createClient()
+    const adminSupabase = await createAdminClient()
 
     // 1. Verify task assignment exists
     // (In a real app with real UUIDs, we would query Supabase here to ensure
@@ -36,8 +37,8 @@ export async function POST(req: NextRequest) {
     // 2. Process and Upload Images
     const now = new Date()
     const year = now.getFullYear()
-    const month = now.toLocaleString('default', { month: 'long' })
-    const folderPath = `task_proofs/${year}/${month}/${session.profile.email}/${taskId}`
+    const month = String(now.getMonth() + 1).padStart(2, '0') // 01 to 12
+    const folderPath = `Submissions/${year}/${month}/assignment_${taskId}`
 
     const uploadedRefs = []
     
@@ -66,32 +67,48 @@ export async function POST(req: NextRequest) {
       })
     }
 
-    // 3. Database Insert (Mocked for now since assignments aren't seeded with UI taskIds)
-    // In Phase 6 (Data Hookup), we will insert this into Supabase:
-    /*
+    // 3. Insert into Supabase
+    const { count, error: countError } = await supabase
+      .from('submissions')
+      .select('*', { count: 'exact', head: true })
+      .eq('assignment_id', taskId)
+
+    const attemptNumber = countError ? 1 : (count || 0) + 1
+
     const { data: submission, error: submitError } = await supabase
       .from('submissions')
       .insert({
-        assignment_id: assignmentId,
+        assignment_id: taskId, // the client passes the assignment_id as taskId
         profile_id: session.profile.id,
-        reddit_url: metadata.permalink,
+        reddit_url: metadata.permalink || redditUrl,
         detected_type: metadata.type,
         screenshot_refs: uploadedRefs,
         insight_text: insights ? JSON.stringify(insights) : null,
+        attempt_number: attemptNumber,
+        status: 'pending'
       })
       .select()
       .single()
-    */
+
+    if (submitError) throw submitError
+
+    // 4. Update Assignment status to submitted
+    const { error: updateError } = await adminSupabase
+      .from('assignments')
+      .update({ status: 'submitted' })
+      .eq('id', taskId)
+      
+    if (updateError) throw updateError
 
     return NextResponse.json({ 
       success: true, 
-      submissionId: `dev-sub-${Date.now()}`,
+      submissionId: submission.id,
       metadata,
       uploadedRefs 
     })
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('[Submit Proof Error]', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 })
   }
 }

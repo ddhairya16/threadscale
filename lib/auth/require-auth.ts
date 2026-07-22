@@ -24,8 +24,8 @@ export async function requireAuth(): Promise<Session> {
     throw new HttpError(403, 'Your account is pending approval.')
   }
 
-  if (session.profile.status === 'blacklisted') {
-    throw new HttpError(403, 'Your account has been permanently disabled.')
+  if (session.profile.status === 'rejected') {
+    throw new HttpError(403, 'Your account application has been rejected.')
   }
 
   return session

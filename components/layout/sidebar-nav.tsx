@@ -2,13 +2,14 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, CheckSquare, IndianRupee, Settings, LogOut } from 'lucide-react'
+import { LayoutDashboard, CheckSquare, IndianRupee, Settings, UserPlus, LogOut } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 export const navItems = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { name: 'Tasks', href: '/tasks', icon: CheckSquare },
   { name: 'Earnings', href: '/earnings', icon: IndianRupee },
+  { name: 'Referrals', href: '/referrals', icon: UserPlus },
   { name: 'Settings', href: '/settings', icon: Settings },
 ]
 

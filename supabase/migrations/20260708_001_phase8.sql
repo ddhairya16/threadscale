@@ -53,6 +53,7 @@ CREATE POLICY "Admins can manage inquiries" ON public.business_inquiries
       SELECT 1 FROM profiles
       WHERE profiles.id = auth.uid()
       AND profiles.role = 'admin'
+    )
   );
 
 -- 6. Trigger to unlock referral bonus when first assignment is approved

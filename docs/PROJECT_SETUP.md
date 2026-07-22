@@ -135,18 +135,33 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ---
 
-## Step 4 — Google Cloud (Phase 8)
+## Step 4 — Google Cloud (Phase 8 & 9)
 
-Skip this step for now. You will return to it in Phase 8 when we build the
-Google Drive integration. The platform works completely without Google credentials.
+To enable Google Drive for proof storage and Google Sheets for payout reporting, you need to create a Service Account:
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a new Project
+3. Enable **Google Drive API** and **Google Sheets API**
+4. Create a **Service Account** and generate a JSON Key
+5. Open the JSON Key. Copy the `project_id`, `client_email`, and `private_key` fields into your `.env.local`
+6. Create a Google Drive Folder and share it with your Service Account email (Editor). Copy the Folder ID from the URL to `GOOGLE_DRIVE_ROOT_FOLDER_ID`
+7. Create a Google Sheet and share it with your Service Account email (Editor). Copy the Spreadsheet ID from the URL to `GOOGLE_SHEETS_SPREADSHEET_ID`
 
 ---
 
 ## Step 5 — Discord Bot (Phase 10)
 
-Skip this step for now. You will return to it in Phase 10.
-During development, all Discord notifications are printed to the server console.
+The Discord Bot acts as the notification engine. It runs a background FastAPI server that the Next.js platform talks to.
 
+1. Navigate to the `bot` folder in your terminal.
+2. Install Python dependencies: `pip install -r requirements.txt`
+3. Generate a secure HMAC key for webhook authentication:
+   ```bash
+   node -e "console.log(crypto.randomBytes(32).toString('hex'))"
+   ```
+4. Copy this key into `platform/.env.local` as `DISCORD_WEBHOOK_SECRET` and into your bot's environment as `WEBHOOK_SECRET`.
+5. Set `DISCORD_WEBHOOK_URL=http://localhost:8000/notify` in your `platform/.env.local` for local development.
+6. Start the bot by running `python main.py`.
 ---
 
 ## Step 6 — Verify Everything Works

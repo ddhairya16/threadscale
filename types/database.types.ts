@@ -38,6 +38,9 @@ export type Database = {
           created_at: string
           updated_at: string
           last_login_at: string | null
+          payment_method: string | null
+          account_holder_name: string | null
+          payment_qr_ref: Json | null
         }
         Insert: {
           id: string
@@ -56,6 +59,9 @@ export type Database = {
           created_at?: string
           updated_at?: string
           last_login_at?: string | null
+          payment_method?: string | null
+          account_holder_name?: string | null
+          payment_qr_ref?: Json | null
         }
         Update: {
           full_name?: string | null
@@ -67,6 +73,9 @@ export type Database = {
           upi_id?: string | null
           updated_at?: string
           last_login_at?: string | null
+          payment_method?: string | null
+          account_holder_name?: string | null
+          payment_qr_ref?: Json | null
           // Admin-only updates
           role?: Database['public']['Enums']['user_role']
           status?: Database['public']['Enums']['user_status']
@@ -621,6 +630,8 @@ export type Database = {
           is_read: boolean
           discord_sent: boolean
           discord_sent_at: string | null
+          error_message: string | null
+          channel: string
           created_at: string
         }
         Insert: {
@@ -634,12 +645,16 @@ export type Database = {
           is_read?: boolean
           discord_sent?: boolean
           discord_sent_at?: string | null
+          error_message?: string | null
+          channel?: string
           created_at?: string
         }
         Update: {
           is_read?: boolean
           discord_sent?: boolean
           discord_sent_at?: string | null
+          error_message?: string | null
+          channel?: string
         }
         Relationships: []
       }
@@ -777,7 +792,6 @@ export type Database = {
         | 'under_review'
         | 'approved'
         | 'rejected'
-        | 'paid'
       submission_status: 'pending' | 'under_review' | 'approved' | 'rejected'
       payment_type: 'task' | 'referral_bonus'
       payment_status: 'pending' | 'approved' | 'paid'

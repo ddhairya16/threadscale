@@ -24,9 +24,11 @@ NEXT_PUBLIC_SUPABASE_URL          = your Supabase project URL
 NEXT_PUBLIC_SUPABASE_ANON_KEY     = your anon key
 SUPABASE_SERVICE_ROLE_KEY         = your service role key
 CRON_SECRET                       = your generated secret
+DISCORD_WEBHOOK_URL               = http://your-oracle-cloud-ip:8000/notify
+DISCORD_WEBHOOK_SECRET            = your hmac secret
 ```
 
-Leave Google and Discord variables empty until Phase 8/10.
+Leave Google variables empty until Phase 8.
 
 ### Step 3 — Deploy
 

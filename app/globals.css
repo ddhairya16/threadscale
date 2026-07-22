@@ -107,32 +107,32 @@
 
 /* ── Dark Mode ───────────────────────────────────────────────── */
 .dark {
-  --background:           oklch(0.16 0 0);          /* #1e1e1e equivalent (VS Code background) */
+  --background:           oklch(0.13 0 0);          /* #121212 Deep background */
   --foreground:           oklch(0.98 0 0);          /* Crisp white text */
-  --card:                 oklch(0.21 0 0);          /* #2d2d2d distinct card background */
+  --card:                 oklch(0.18 0 0);          /* #1e1e1e Card background */
   --card-foreground:      oklch(0.98 0 0);
-  --popover:              oklch(0.21 0 0);
+  --popover:              oklch(0.18 0 0);
   --popover-foreground:   oklch(0.98 0 0);
 
   /* Indigo primary — vibrant in dark mode */
   --primary:              oklch(0.65 0.22 265);
   --primary-foreground:   oklch(0.98 0 0);
 
-  --secondary:            oklch(0.26 0 0);          /* #3d3d3d */
+  --secondary:            oklch(0.24 0 0);          /* #2a2a2a */
   --secondary-foreground: oklch(0.98 0 0);
-  --muted:                oklch(0.26 0 0);
-  --muted-foreground:     oklch(0.70 0 0);          /* High contrast gray for muted text */
-  --accent:               oklch(0.26 0 0);
+  --muted:                oklch(0.22 0 0);
+  --muted-foreground:     oklch(0.65 0 0);          /* Soft gray for muted text */
+  --accent:               oklch(0.24 0 0);
   --accent-foreground:    oklch(0.98 0 0);
   --destructive:          oklch(0.65 0.22 27);
-  --border:               oklch(0.35 0 0);          /* Solid, visible border (#444444) */
-  --input:                oklch(0.35 0 0);
+  --border:               oklch(0.28 0 0);          /* Visible but subtle border (#333333) */
+  --input:                oklch(0.23 0 0);          /* #262626 Input background */
   --ring:                 oklch(0.65 0.22 265);
 
-  --sidebar-background:   oklch(0.14 0 0);          /* #181818 Slightly darker than main background */
+  --sidebar-background:   oklch(0.11 0 0);          /* #0a0a0a Darker sidebar */
   --sidebar-foreground:   oklch(0.95 0 0);
-  --sidebar-accent:       oklch(0.21 0 0);
-  --sidebar-border:       oklch(0.35 0 0);          /* Visible sidebar separator */
+  --sidebar-accent:       oklch(0.18 0 0);
+  --sidebar-border:       oklch(0.28 0 0);
 }
 
 /* ── Base Styles ─────────────────────────────────────────────── */
@@ -267,4 +267,13 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* ── Hide Scrollbar Utility ──────────────────────────────────── */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

@@ -3,6 +3,8 @@ import { redirect } from 'next/navigation'
 import { createAdminClient } from '@/lib/supabase/server'
 import { AssignmentsClient } from '@/components/admin/assignments-client'
 
+export const dynamic = 'force-dynamic'
+
 export default async function AssignmentsPage() {
   const session = await getSession()
   if (!session || session.profile.role !== 'admin') redirect('/login')

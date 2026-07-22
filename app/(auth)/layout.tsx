@@ -1,8 +1,23 @@
+import { getSession } from '@/lib/auth/get-session'
+import { redirect } from 'next/navigation'
+
 /**
  * Auth layout — wraps /login and /verify pages.
  * Full-screen centered layout with animated gradient background.
  */
-export default function AuthLayout({ children }: { children: React.ReactNode }) {
+export default async function AuthLayout({ children }: { children: React.ReactNode }) {
+  const session = await getSession()
+  
+  if (session) {
+    if (session.profile.role === 'admin') {
+      redirect('/admin')
+    }
+    if (session.profile.status === 'pending') {
+      redirect('/dashboard/waiting')
+    }
+    redirect('/dashboard')
+  }
+
   return (
     <div className="relative min-h-screen overflow-hidden bg-background flex items-center justify-center p-4">
       {/* Ambient gradient orbs */}

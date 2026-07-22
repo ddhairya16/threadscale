@@ -1,3 +1,4 @@
+import crypto from 'crypto'
 import type { NotificationPayload, NotificationProvider } from './types'
 
 /**
@@ -5,36 +6,41 @@ import type { NotificationPayload, NotificationProvider } from './types'
  *
  * Calls the HTTP webhook server running on the Discord bot (Oracle Cloud).
  * The bot server validates requests using a shared HMAC secret.
- *
- * STUB — Integration implemented in Phase 10.
- *
- * During development (Phases 1–9), all notifications are logged to the
- * console. No Discord credentials are required.
  */
 export class DiscordNotificationProvider implements NotificationProvider {
-  private readonly botUrl: string
+  private readonly webhookUrl: string
   private readonly secret: string
 
   constructor() {
-    this.botUrl = process.env.DISCORD_BOT_URL ?? ''
-    this.secret = process.env.DISCORD_BOT_SECRET ?? ''
+    this.webhookUrl = process.env.DISCORD_WEBHOOK_URL ?? ''
+    this.secret = process.env.DISCORD_WEBHOOK_SECRET ?? ''
   }
 
   async send(payload: NotificationPayload): Promise<{ sent: boolean; error?: string }> {
-    if (!this.botUrl) {
+    if (!this.webhookUrl || !this.secret) {
       // Development mode: log instead of sending
       console.log('[Discord DEV] Notification:', JSON.stringify(payload, null, 2))
       return { sent: true }
     }
 
     try {
-      const response = await fetch(`${this.botUrl}/notify`, {
+      const timestamp = Math.floor(Date.now() / 1000).toString()
+      const bodyString = JSON.stringify(payload)
+      
+      const message = `${timestamp}.${bodyString}`
+      const signature = crypto
+        .createHmac('sha256', this.secret)
+        .update(message)
+        .digest('hex')
+
+      const response = await fetch(this.webhookUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-Bot-Secret': this.secret,
+          'X-Timestamp': timestamp,
+          'X-Signature': signature,
         },
-        body: JSON.stringify(payload),
+        body: bodyString,
         signal: AbortSignal.timeout(10_000), // 10s timeout
       })
 

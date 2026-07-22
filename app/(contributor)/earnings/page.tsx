@@ -24,7 +24,7 @@ export default async function EarningsPage() {
       tasks (title)
     `)
     .eq('profile_id', session.userId)
-    .in('status', ['submitted', 'under_review', 'approved', 'paid'])
+    .in('status', ['submitted', 'under_review', 'approved'])
 
   // 2. Fetch Payments to calculate Lifetime Earnings and Last Payment
   const { data: payments } = await supabase
@@ -33,16 +33,18 @@ export default async function EarningsPage() {
     .eq('profile_id', session.userId)
     .order('created_at', { ascending: false })
 
+  const paidAssignmentIds = new Set((payments || []).filter(p => p.status === 'paid').map(p => p.assignment_id))
+
   const todayStart = new Date()
   todayStart.setHours(0, 0, 0, 0)
 
   // Calculations
   const todayEarnings = (assignments || [])
-    .filter(a => a.completed_at && new Date(a.completed_at) >= todayStart && ['approved', 'paid'].includes(a.status))
+    .filter(a => a.completed_at && new Date(a.completed_at) >= todayStart && (a.status === 'approved' || paidAssignmentIds.has(a.id)))
     .reduce((acc, a) => acc + (a.rate_snapshot_inr || 0), 0)
 
   const pendingEarnings = (assignments || [])
-    .filter(a => a.status === 'approved')
+    .filter(a => a.status === 'approved' && !paidAssignmentIds.has(a.id))
     .reduce((acc, a) => acc + (a.rate_snapshot_inr || 0), 0)
 
   const lifetimeEarnings = (payments || [])

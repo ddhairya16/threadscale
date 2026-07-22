@@ -12,6 +12,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Loader2, UploadCloud, X, CheckCircle2 } from 'lucide-react'
 import { toast } from 'sonner'
 import Image from 'next/image'
+import imageCompression from 'browser-image-compression'
 
 export function SubmissionForm({ taskId }: { taskId: string }) {
   const router = useRouter()
@@ -21,6 +22,7 @@ export function SubmissionForm({ taskId }: { taskId: string }) {
   const [previewUrls, setPreviewUrls] = useState<string[]>([])
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isCompressing, setIsCompressing] = useState(false)
 
   // Parse URL whenever draft.redditUrl changes
   useEffect(() => {
@@ -36,12 +38,33 @@ export function SubmissionForm({ taskId }: { taskId: string }) {
     return () => previewUrls.forEach(URL.revokeObjectURL)
   }, [previewUrls])
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files?.length) return
-    const newFiles = Array.from(e.target.files)
-    setFiles(prev => [...prev, ...newFiles])
-    setPreviewUrls(prev => [...prev, ...newFiles.map(f => URL.createObjectURL(f))])
-    e.target.value = ''
+    const rawFiles = Array.from(e.target.files)
+    
+    setIsCompressing(true)
+    const toastId = toast.loading('Compressing images...')
+    try {
+      const compressedFiles = await Promise.all(
+        rawFiles.map(async (file) => {
+          if (!file.type.startsWith('image/')) return file
+          return await imageCompression(file, {
+            maxSizeMB: 1,
+            maxWidthOrHeight: 1600,
+            useWebWorker: true,
+          })
+        })
+      )
+      
+      setFiles(prev => [...prev, ...compressedFiles])
+      setPreviewUrls(prev => [...prev, ...compressedFiles.map(f => URL.createObjectURL(f))])
+      toast.success('Images ready!', { id: toastId })
+    } catch (err) {
+      toast.error('Failed to compress images.', { id: toastId })
+    } finally {
+      setIsCompressing(false)
+      e.target.value = ''
+    }
   }
 
   const removeFile = (index: number) => {
@@ -65,13 +88,16 @@ export function SubmissionForm({ taskId }: { taskId: string }) {
 
 
       const res = await fetch('/api/v1/submissions', { method: 'POST', body: formData })
-      if (!res.ok) throw new Error('Failed to submit')
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}))
+        throw new Error(errorData.error || 'Failed to submit')
+      }
 
       clearDraft()
       toast.success('Proof submitted successfully!')
       router.push(`/tasks/${taskId}/success`)
-    } catch {
-      toast.error('Submission failed. Please try again.')
+    } catch (err: any) {
+      toast.error(`Submission failed: ${err.message}`)
     } finally {
       setIsSubmitting(false)
     }

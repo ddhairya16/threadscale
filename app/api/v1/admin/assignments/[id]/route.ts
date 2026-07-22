@@ -12,7 +12,6 @@ const VALID_STATUSES: Enums<'assignment_status'>[] = [
   'under_review',
   'approved',
   'rejected',
-  'paid',
 ]
 
 // PATCH /api/v1/admin/assignments/[id] — update assignment status
@@ -24,20 +23,37 @@ export async function PATCH(req: NextRequest, { params }: Params) {
 
   const { id } = await params
   const body = await req.json()
-  const { status } = body as { status?: string }
+  const { status, rate_snapshot_inr, deadline_at } = body as { status?: string, rate_snapshot_inr?: number, deadline_at?: string }
 
-  if (!status || !VALID_STATUSES.includes(status as Enums<'assignment_status'>)) {
-    return NextResponse.json(
-      { error: `status must be one of: ${VALID_STATUSES.join(', ')}` },
-      { status: 400 }
-    )
+  const updatePayload: any = {}
+
+  if (status) {
+    if (!VALID_STATUSES.includes(status as Enums<'assignment_status'>)) {
+      return NextResponse.json(
+        { error: `status must be one of: ${VALID_STATUSES.join(', ')}` },
+        { status: 400 }
+      )
+    }
+    updatePayload.status = status
+  }
+
+  if (rate_snapshot_inr !== undefined) {
+    updatePayload.rate_snapshot_inr = rate_snapshot_inr
+  }
+
+  if (deadline_at !== undefined) {
+    updatePayload.deadline_at = deadline_at
+  }
+
+  if (Object.keys(updatePayload).length === 0) {
+    return NextResponse.json({ error: 'No fields to update' }, { status: 400 })
   }
 
   const supabase = await createAdminClient()
 
   const { data, error } = await supabase
     .from('assignments')
-    .update({ status: status as Enums<'assignment_status'> })
+    .update(updatePayload)
     .eq('id', id)
     .select(
       `id, status, assigned_at, deadline_at, rate_snapshot_inr,

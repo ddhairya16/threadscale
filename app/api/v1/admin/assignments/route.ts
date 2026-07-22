@@ -66,6 +66,15 @@ export async function POST(req: NextRequest) {
     )
     .single()
 
-  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (error) {
+    if (error.code === '23505') { // Unique constraint violation
+      return NextResponse.json(
+        { error: 'This contributor is already assigned to this task.' },
+        { status: 400 }
+      )
+    }
+    return NextResponse.json({ error: error.message }, { status: 500 })
+  }
+  
   return NextResponse.json(data, { status: 201 })
 }

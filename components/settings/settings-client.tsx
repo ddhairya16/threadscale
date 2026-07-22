@@ -22,6 +22,9 @@ interface ProfileData {
   email: string
   full_name: string | null
   upi_id: string | null
+  payment_method?: string | null
+  account_holder_name?: string | null
+  payment_qr_ref?: any
 }
 
 export function SettingsClient({ initialEmail }: { initialEmail: string }) {
@@ -151,6 +154,69 @@ export function SettingsClient({ initialEmail }: { initialEmail: string }) {
               className="max-w-md"
             />
             <p className="text-xs text-muted-foreground">Required to process your payouts.</p>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="payment_method">Preferred Payment Method</Label>
+            <select
+              id="payment_method"
+              value={profile.payment_method ?? 'upi'}
+              onChange={e => setProfile(p => ({ ...p, payment_method: e.target.value }))}
+              className="w-full max-w-md flex h-9 rounded-md border border-input bg-background px-3 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
+            >
+              <option value="upi">UPI</option>
+              <option value="bank_transfer">Bank Transfer (Coming Soon)</option>
+            </select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="account_holder_name">Account Holder Name</Label>
+            <Input
+              id="account_holder_name"
+              placeholder="e.g. Dhairya Shah"
+              value={profile.account_holder_name ?? ''}
+              onChange={e => setProfile(p => ({ ...p, account_holder_name: e.target.value }))}
+              className="max-w-md"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="qr_code">Payment QR Code</Label>
+            <div className="flex items-center gap-4">
+              <Input
+                id="qr_code"
+                type="file"
+                accept="image/*"
+                onChange={async (e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  toast.info('Uploading QR Code...');
+                  const formData = new FormData();
+                  formData.append('qrCode', file);
+                  
+                  try {
+                    const res = await fetch('/api/v1/profile/qr', {
+                      method: 'POST',
+                      body: formData,
+                    });
+                    if (res.ok) {
+                      const data = await res.json();
+                      setProfile(p => ({ ...p, payment_qr_ref: data.payment_qr_ref }));
+                      toast.success('QR Code uploaded successfully!');
+                    } else {
+                      toast.error('Failed to upload QR Code');
+                    }
+                  } catch (err) {
+                    toast.error('Error uploading QR Code');
+                  }
+                }}
+                className="max-w-md"
+              />
+              {profile.payment_qr_ref && (
+                <CheckCircle2 className="h-5 w-5 text-emerald-500" />
+              )}
+            </div>
+            <p className="text-xs text-muted-foreground">Upload your QR code to make payouts easier.</p>
           </div>
 
           <Button onClick={saveProfile} disabled={isSavingProfile}>

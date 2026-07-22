@@ -54,27 +54,24 @@ export default async function ContributorDashboardPage() {
   // Pending reviews = submitted or under_review
   const pendingReviews = (assignments || []).filter(a => ['submitted', 'under_review'].includes(a.status))
 
-  // Approved (waiting to be paid)
-  const pendingPayments = (assignments || []).filter(a => a.status === 'approved')
-
-  // Paid
-  const paidTasks = (assignments || []).filter(a => a.status === 'paid')
-
-  // Get last payment date from payments table
-  const { data: lastPayment } = await supabase
+  // Get payments to determine which are paid
+  const { data: payments } = await supabase
     .from('payments')
-    .select('paid_at')
+    .select('paid_at, amount_inr, status, assignment_id')
     .eq('profile_id', session.userId)
-    .eq('status', 'paid')
-    .order('paid_at', { ascending: false })
-    .limit(1)
-    .single()
+
+  const paidAssignmentIds = new Set((payments || []).filter(p => p.status === 'paid').map(p => p.assignment_id))
+
+  // Approved (waiting to be paid)
+  const pendingPayments = (assignments || []).filter(a => a.status === 'approved' && !paidAssignmentIds.has(a.id))
+
+  const lastPayment = (payments || []).filter(p => p.status === 'paid').sort((a, b) => new Date(b.paid_at || 0).getTime() - new Date(a.paid_at || 0).getTime())[0]
 
   const stats = {
     activeTasks: activeTasks.length,
     pendingReviews: pendingReviews.length,
     pendingEarnings: pendingPayments.reduce((acc, task) => acc + (task.rate_snapshot_inr || 0), 0),
-    lifetimeEarnings: paidTasks.reduce((acc, task) => acc + (task.rate_snapshot_inr || 0), 0),
+    lifetimeEarnings: (payments || []).filter(p => p.status === 'paid').reduce((acc, p) => acc + (p.amount_inr || 0), 0),
     lastPaymentDate: lastPayment?.paid_at || null
   }
 
@@ -85,7 +82,7 @@ export default async function ContributorDashboardPage() {
       let title = `Assigned task: ${a.tasks?.title}`
       let type = 'assigned'
       
-      if (a.status === 'paid' && a.completed_at) {
+      if (paidAssignmentIds.has(a.id) && a.completed_at) {
         date = a.completed_at
         title = `Payment recorded for ${a.tasks?.title}`
         type = 'paid'

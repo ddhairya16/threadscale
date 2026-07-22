@@ -2,9 +2,8 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, Users, Building2, FolderKanban, ClipboardList, CheckSquare, LogOut, ChevronDown, MessageSquare } from 'lucide-react'
+import { LayoutDashboard, Users, Building2, FolderKanban, ClipboardList, CheckSquare, LogOut, MessageSquare, FileCheck, Banknote } from 'lucide-react'
 import { ThemeToggle } from '@/components/theme-toggle'
-import { useState } from 'react'
 
 const navItems = [
   { href: '/admin', label: 'Overview', icon: LayoutDashboard, exact: true },
@@ -13,6 +12,8 @@ const navItems = [
   { href: '/admin/projects', label: 'Projects', icon: FolderKanban },
   { href: '/admin/tasks', label: 'Tasks', icon: ClipboardList },
   { href: '/admin/assignments', label: 'Assignments', icon: CheckSquare },
+  { href: '/admin/submissions', label: 'Submissions', icon: FileCheck },
+  { href: '/admin/payouts', label: 'Payouts', icon: Banknote },
   { href: '/admin/inquiries', label: 'Inquiries', icon: MessageSquare },
 ]
 
@@ -21,19 +22,19 @@ export function AdminNav({ email }: { email: string }) {
 
   return (
     <header className="sticky top-0 z-50 border-b border-border/40 bg-background/90 backdrop-blur-md">
-      <div className="max-w-7xl mx-auto px-6 flex items-center gap-1 h-14">
+      <div className="w-full px-6 md:px-8 flex items-center gap-6 h-16">
         {/* Logo */}
-        <Link href="/admin" className="flex items-center gap-2 mr-6 shrink-0">
+        <Link href="/admin" className="flex items-center gap-2 shrink-0">
           <div className="flex h-7 w-7 items-center justify-center rounded bg-primary/15 ring-1 ring-primary/30">
             <svg className="h-4 w-4 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
           </div>
-          <span className="font-semibold tracking-tight text-foreground hidden sm:block">Admin</span>
+          <span className="font-semibold tracking-tight text-foreground hidden lg:block">Admin</span>
         </Link>
 
-        {/* Nav items */}
-        <nav className="flex items-center gap-1 flex-1 overflow-x-auto scrollbar-none">
+        {/* Nav items — single row, scrolls horizontally instead of wrapping */}
+        <nav className="flex items-center gap-4 lg:gap-6 flex-1 min-w-0 overflow-x-auto no-scrollbar">
           {navItems.map(item => {
             const isActive = item.exact ? pathname === item.href : pathname.startsWith(item.href) && item.href !== '/admin'
             const exactActive = item.exact && pathname === item.href
@@ -42,13 +43,13 @@ export function AdminNav({ email }: { email: string }) {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium whitespace-nowrap transition-colors ${
+                className={`flex shrink-0 items-center gap-1.5 px-2.5 py-1.5 rounded-md text-sm font-medium whitespace-nowrap transition-all border-b-2 ${
                   active
-                    ? 'bg-primary/10 text-primary'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-accent'
+                    ? 'bg-primary/10 text-primary border-primary shadow-sm'
+                    : 'text-muted-foreground border-transparent hover:text-foreground hover:bg-muted/50 hover:border-border/50'
                 }`}
               >
-                <item.icon className="h-4 w-4" />
+                <item.icon className="h-4 w-4 shrink-0" />
                 {item.label}
               </Link>
             )
@@ -56,13 +57,13 @@ export function AdminNav({ email }: { email: string }) {
         </nav>
 
         {/* Right side */}
-        <div className="flex items-center gap-2 ml-4 shrink-0">
+        <div className="flex items-center gap-2 shrink-0">
           <ThemeToggle />
-          <span className="text-xs text-muted-foreground hidden md:block">{email}</span>
+          <span className="text-xs text-muted-foreground hidden xl:block">{email}</span>
           <form action="/api/v1/auth/logout" method="POST">
             <button
               type="submit"
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
               title="Log out"
             >
               <LogOut className="h-4 w-4" />

@@ -45,7 +45,7 @@ export interface ProfileDto {
   discord_username: string | null
   referral_code: string
   role: 'contributor' | 'admin' | 'client'
-  status: 'active' | 'suspended' | 'blacklisted'
+  status: 'pending' | 'approved' | 'rejected' | 'suspended'
   onboarding_steps: string[]
   notify_email: boolean
   notify_discord: boolean
