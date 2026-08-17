@@ -1,7 +1,5 @@
 import { betterAuth } from 'better-auth'
-import { magicLink } from 'better-auth/plugins'
 import { Pool } from 'pg'
-import nodemailer from 'nodemailer'
 
 /**
  * Better Auth instance.
@@ -16,43 +14,25 @@ export const auth = betterAuth({
   }),
 
   emailAndPassword: {
-    enabled: false, // Magic links only
+    enabled: true, // Enable email and password login for the Admin
   },
 
-  plugins: [
-    magicLink({
-      sendMagicLink: async ({ email, url }) => {
-        const smtpEmail = process.env.SMTP_EMAIL
-        const smtpPassword = process.env.SMTP_PASSWORD
-
-        if (!smtpEmail || !smtpPassword) {
-          console.error('[Better Auth] SMTP_EMAIL or SMTP_PASSWORD not set')
-          return
-        }
-
-        const transporter = nodemailer.createTransport({
-          service: 'gmail',
-          auth: { user: smtpEmail, pass: smtpPassword },
-        })
-
-        await transporter.sendMail({
-          from: `"Community Growth Platform" <${smtpEmail}>`,
-          to: email,
-          subject: 'Your magic link to sign in',
-          html: `
-            <div style="font-family: sans-serif; max-width: 500px; margin: 0 auto;">
-              <h2 style="color: #111;">Sign in to Community Growth</h2>
-              <p style="color: #555;">Click the button below to sign in. This link expires in 10 minutes.</p>
-              <a href="${url}" style="display: inline-block; background: #6366f1; color: white; padding: 12px 28px; border-radius: 8px; text-decoration: none; font-weight: 600; margin: 16px 0;">
-                Sign In
-              </a>
-              <p style="color: #999; font-size: 12px;">If you didn't request this, you can safely ignore this email.</p>
-            </div>
-          `,
-        })
+  databaseHooks: {
+    user: {
+      create: {
+        before: async (user) => {
+          // Strictly restrict signup to the admin email only
+          const allowedEmails = ['ddhairya16@gmail.com']
+          if (!allowedEmails.includes(user.email.toLowerCase())) {
+            throw new Error('Sign-ups are disabled for this email.')
+          }
+          return {
+            data: user,
+          }
+        },
       },
-    }),
-  ],
+    },
+  },
 
   session: {
     cookieCache: {
