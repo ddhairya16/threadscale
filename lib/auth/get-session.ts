@@ -1,5 +1,5 @@
 import { auth } from '@/lib/auth'
-import { createAdminClient } from '@/lib/supabase/server'
+import { Pool } from 'pg'
 import { headers } from 'next/headers'
 import type { Tables } from '@/types/database.types'
 
@@ -11,10 +11,17 @@ export interface Session {
   profile: Profile
 }
 
+// Reuse connection pool from PostgreSQL connection string
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false },
+})
+
 /**
  * Returns the current session and profile, or null if not authenticated.
  * Uses Better Auth for session validation, then looks up the profile
- * from Supabase by email for app-specific fields (role, status, etc.).
+ * directly from Postgres by email for app-specific fields (role, status, etc.).
+ * Completely bypasses Supabase client SDK to prevent API key errors.
  */
 export async function getSession(): Promise<Session | null> {
   try {
@@ -29,15 +36,11 @@ export async function getSession(): Promise<Session | null> {
 
     const email = session.user.email
 
-    // 2. Look up the profile in the Supabase profiles table by email
-    const supabase = await createAdminClient()
-    const { data: profile, error: profileError } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('email', email)
-      .single()
+    // 2. Look up the profile in Postgres directly by email
+    const result = await pool.query('SELECT * FROM profiles WHERE email = $1 LIMIT 1', [email])
+    const profile = result.rows[0] as Profile | undefined
 
-    if (profileError || !profile) {
+    if (!profile) {
       return null
     }
 
@@ -46,7 +49,8 @@ export async function getSession(): Promise<Session | null> {
       email,
       profile,
     }
-  } catch {
+  } catch (error) {
+    console.error('[getSession Error]:', error)
     return null
   }
 }

@@ -27,11 +27,6 @@ export default function LandingPage() {
             <Link href="/login">
               <Button variant="ghost" className="hidden sm:flex">Log in</Button>
             </Link>
-            <Link href="https://discord.gg/HCN7pqBEW" target="_blank" rel="noopener noreferrer">
-              <Button className="bg-primary hover:bg-primary/90 text-primary-foreground">
-                Get Started
-              </Button>
-            </Link>
           </div>
         </div>
       </header>
@@ -62,7 +57,7 @@ export default function LandingPage() {
                   Join as Contributor <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </Link>
-              <Link href="mailto:hello@example.com">
+              <Link href="#contact">
                 <Button size="lg" variant="outline" className="h-12 px-8 text-base bg-background/50 backdrop-blur-sm border-border/50">
                   Hire Contributors
                 </Button>

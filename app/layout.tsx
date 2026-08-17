@@ -50,7 +50,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} dark`}
+      className={`${inter.variable} dark scroll-smooth`}
       suppressHydrationWarning
     >
       <body className="min-h-screen bg-background font-sans antialiased">
